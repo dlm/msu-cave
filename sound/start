@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+file_name=sound/$(./util/fetch_firebase_data.sh | jq .sound | tr -d \")
+
+if [ -e ${file_name} ]; then
+    echo "Running sound with ${file_name}"
+    csound -odac -+rtaudio=alsa -b2048 -B2048 $file_name
+else
+    echo "Cannot start sound, no file named ${file_name}"
+    exit 1
+fi
+
