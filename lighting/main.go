@@ -189,6 +189,7 @@ func idleLighting() {
 			lastColor = settings.OffStartColor
 			time.Sleep(pauseDuration)
 		}
+		time.Sleep(3.0 * time.Second)
 	}
 }
 
