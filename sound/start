@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-file_name=sound/$(./util/fetch_firebase_data.sh | jq .sound | tr -d \")
+file_name=sound/$(./util/fetch_firebase_data.sh | jq .sound_file_name | tr -d \")
 
 if [ -e ${file_name} ]; then
     echo "Running sound with ${file_name}"
