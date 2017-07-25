@@ -8,8 +8,8 @@ echo "Automatic Pairing Utility"
 function conn {
 	address=$(echo $1 | tr -d '"')
 	echo "Attempting connection to $address"
-	echo raspberry | sudo -kS hcitool -i "hci0" cc "$address"
-	echo raspberry | sudo -kS rfcomm -i "hci0" connect "rfcomm0" "$address"
+	echo raspberry | sudo ./bin/gort bluetooth connect "${address}" 
+	echo raspberry | sudo ./bin/gort bluetooth serial "${address}" rfcomm0
 }
 
 target_address=$1
