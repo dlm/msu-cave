@@ -6,8 +6,9 @@ user=$(whoami)
 
 sudo apt-get install csound
 
-sudo cp config.txt /bin/
-sudo cp asound.conf /etc/
+sudo echo "dtoverlay=hifiberry-dacplus" >> /boot/config.txt
+
+cp asound.conf /etc/
 
 sudo usermod -a -G audio $user
 
