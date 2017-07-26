@@ -4,7 +4,7 @@ target_address=$1
 
 echo "attempting to connect"
 
-./headset_bridge/pair_headset "$target_address" &
+echo raspberry | sudo -kS ./headset_bridge/pair_headset "$target_address"
 
 echo "connecting start bridge"
-./headset_bridge/connect_bridge &
+./headset_bridge/connect_bridge

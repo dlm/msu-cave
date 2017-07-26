@@ -25,3 +25,5 @@ admin_kill "[s]udo -kS"
 echo admin kill 4
 admin_kill "[s]udo -kS"
 
+echo raspberry | sudo -kS rfcomm release all
+
