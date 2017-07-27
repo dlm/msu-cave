@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Firebase</title>
+    <link rel="stylesheet" href="css/index.css" type="text/css">
+  </head>
+  <body>
+    <h1>Status</h1>
+    <div class="container"></div>
+    <hr>
+    <h1>Shutdown</h1>
+    <div class="box" id="shutdown_box">
+		<p>Click to begin shutdown, then wait for confirmation message. </p>
+		<button id="offbutton" onclick="toggleOff()">Begin shutdown</button>
+		<div id="statusMessages"></div>
+		<div class="loader" id="pending"></div>
+		<div id="response">Click to confirm power off.</div>
+		<button id="poweroff" onclick="poweroff()">Confirm power off</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/4.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.1.3/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.1.3/firebase-database.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	<script src="/scripts/main.js" type="text/javascript"></script>
+	
+    <script> 
+        // const firebase = require('firebase');
+        firebase.initializeApp({
+            apiKey: "AIzaSyBMcXd3cG8JoinbmykBtXyWTJZn9P-XYDY",
+            databaseURL: "https://msu-cave.firebaseio.com/",
+            authDomain: "msu-cave.firebaseapp.com",
+        });
+
+        firebase.auth().signInWithEmailAndPassword("admin@holter.com", "msu-cave-rocks").catch(function(error) {
+            console.log("error code here");
+            var errorCode = error.code;
+            var errorMessage = error.message;
+        });
+
+			const ui = firebase.database().ref('installations/holter/ui');
+			const off_button = ui.child('button01_off');
+			const power_button = ui.child('button02_power');
+			const totalPods = 2; //total number of pods 
+			
+			off_button.set(false);
+			power_button.set(false);		
+	
+		 
+		 // toggle power button once all of the pods have a shutdown value of 'true'
+		 ui.child('shutdown').on('value', function (snap) {
+			var num = 0;
+			snap.forEach(function (childsnap) {
+				if (childsnap.val() == true) {
+					num++;
+				}
+				if (num == totalPods ) {
+					$("#response").show();
+					$("#poweroff").show();
+					$("#pending").hide();
+					document.getElementById("poweroff").scrollIntoView();
+				}
+			});
+		 });
+
+		 // get pod ID for the child changed in 'pods' ; Call checkStatus() with correct pod ID
+		 ui.child('pods').on('child_changed', function(snap) {
+		 		var podId = snap.key;
+		 		podId = ui.child('pods/'+podId);
+		 		checkStatus(podId);
+		 });
+
+		// check each sub-system given podId, then update which are on/off 
+		function checkStatus(podId) {
+			var numOn = 0;
+			var numOff = 0;
+			
+			if ( $('#'+podId.key).length == 0) {
+		 		$('<div id="'+podId.key+'" class="box"><h2>'+podId.key+'</h2></div>').appendTo($(".container"));
+		 		$('<p id="'+podId.key+'-status"></p>').appendTo($("#statusMessages"));
+		 	}
+			
+			var divStatus = '#'+podId.key+'-status';
+			
+			podId.once('value').then(function (snap) {
+				snap.forEach(function (childsnap) {
+					 var divId = podId.key + '-' + childsnap.key;						
+					
+					if (childsnap.val() == true) {	
+						
+						if ( $('#'+divId).length) {
+							$('#'+divId).removeClass().addClass("green").text("✔ " + divId + " : true");
+						}
+						else {
+							$('#'+podId.key).append($('<p/>').attr("id", divId).addClass("green").text("✔ " + divId + " : true"));
+						}
+						numOn++;
+					}		
+					else {
+						if ( $('#'+divId).length) {
+							$('#'+divId).removeClass().addClass("red").text("✘ " + divId + " : false");
+						}
+						else {
+							$('#'+podId.key).append($('<p/>').attr("id", divId).addClass("red").text("✘ " + divId + " : false"));
+						}
+						numOff++;
+					}
+				});
+				
+				// red text if any processes are on (true)
+				 if (numOn > 0) {  
+					$(divStatus).css({ 'color' : 'red' }).text("✘ "+ podId.key + ": " + numOff + " terminated, " + numOn + " currently running.");
+				 }
+				 // sreen text when all processes are off (false)
+				 else {	
+					$(divStatus).css({ 'color' : '#4CAF50' }).text("✔ " + podId.key + ": " + numOff + " terminated, " + numOn + " currently running.");			
+				}
+			});		
+		}
+		
+ //   	Set off button to true, disable button, show loading image
+   		function toggleOff() {
+     		$("#pending").show();
+     		document.getElementById("pending").scrollIntoView();
+ 			ui.child('button01_off').set(true);
+ 			$("#offbutton").prop('disabled', true);
+ 		}
+ 
+ 	//    Set power button to true, disable button
+ 		function poweroff() {
+ 			ui.child('button02_power').set(true);
+ 			ui.child('button01_off').set(false);
+ 			$("#poweroff").prop('disabled', true);
+ 		}
+    </script>
+  </body>
+</html>
