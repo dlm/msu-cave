@@ -10,7 +10,6 @@ suite('service', function() {
     const config = {
       name: 'name',
       start: 'echo start',
-      stop: 'echo stop',
     };
 
     suite('name', function() {
@@ -20,23 +19,13 @@ suite('service', function() {
       });
     });
 
-    suite('#start', function() {
+    suite('#restart', function() {
       it('runs a command with start command', function() {
         const s = new service.Service(config)
         spy = sinon.spy(s, 'runCmd');
-        s.start();
+        s.restart();
         assert(spy.calledWith('echo start'));
       });
-    });
-
-    suite('#stop', function() {
-      it('runs a command with stop command', function() {
-        const s = new service.Service(config)
-        spy = sinon.spy(s, 'runCmd');
-        s.stop();
-        assert(spy.calledWith('echo stop'));
-      });
-
     });
   });
 });

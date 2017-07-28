@@ -8,7 +8,7 @@ const monitor = require('../monitor');
 suite('monitor', function() {
   suite('Monitor', function() {
     const makeService = () => {
-      return { start: () => undefined, stop: () => undefined, name: "" };
+      return { restart: () => undefined, name: "" };
     };
 
     suite('constructor', function() {
@@ -38,8 +38,7 @@ suite('monitor', function() {
         const service = makeService();
         const mock = sinon.mock(service);
 
-        mock.expects('stop');
-        mock.expects('start');
+        mock.expects('restart');
 
         const m = new monitor.Monitor(service, 5000);
         m.restartService();
@@ -52,8 +51,7 @@ suite('monitor', function() {
       test('restarts when timed out', function() {
         const service = makeService();
         const mock = sinon.mock(service);
-        mock.expects('stop').once();
-        mock.expects('start').once();
+        mock.expects('restart').once();
 
         const m = new monitor.Monitor(service, 5000);
         sinon.stub(m, 'hasTimedOut').returns(true)
@@ -66,8 +64,7 @@ suite('monitor', function() {
       test('does not restart  when not timed out', function() {
         const service = makeService();
         const mock = sinon.mock(service);
-        mock.expects('stop').never();
-        mock.expects('start').never();
+        mock.expects('restart').never();
 
         const m = new monitor.Monitor(service, 5000);
         sinon.stub(m, 'hasTimedOut').returns(false)

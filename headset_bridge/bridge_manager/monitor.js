@@ -20,8 +20,7 @@ class Monitor {
   }
 
   restartService() {
-    this.service.stop();
-    this.service.start();
+    this.service.restart();
     this.update();
   }
 

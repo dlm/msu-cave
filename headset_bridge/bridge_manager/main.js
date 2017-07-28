@@ -19,8 +19,12 @@ const argv = yargs
   .describe('p', 'Port for listenting for headset bridge')
   // headset hardware address
   .demand('a')
-  .alias('a', 'target-address')
-  .describe('a', 'Target headset hardware address.')
+  .alias('a', 'address')
+  .describe('a', 'URL for bridge to send data.')
+  // device
+  .demand('d')
+  .alias('d', 'device')
+  .describe('d', 'Device on which to bind the headset.')
   // timeout
   .default('t', 20)
   .alias('t', 'timeout')
@@ -33,11 +37,11 @@ const argv = yargs
 
 const headset = {
   name: "headset",
-  start: `cd ../..; pwd; ./headset_bridge/attach ${argv.targetAddress}`,
-  stop: "cd ../..; ./headset_bridge/unattach",
+  start: `../headset_bridge -d ${argv.device} -p ${argv.address}`,
 };
 const headsetService = new service.Service(headset);
 const headsetMonitor = new monitor.Monitor(headsetService, argv.timeout*1000);
+headsetMonitor.restartService();
 
 const oscServer = new osc.Server(argv.headsetBridgePort);
 oscServer.on("message", function (msg, rinfo) {
