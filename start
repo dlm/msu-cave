@@ -1,4 +1,53 @@
 #!/usr/bin/env bash
 
-./headset_bridge/start &
-forego start
+SESSION_NAME=the_cave
+INSTALLATION="holter"
+
+function start_pod() {
+    pod=$1
+    device=$2
+    broadcaster_port=$3
+    monitor_port=$4
+    lighting=$5
+    sound=$6
+
+    # create a new window for this pod
+    tmux new-window -n $pod -t $SESSION_NAME
+
+    # start broadcaster
+    tmux send-keys -t $SESSION_NAME \
+        "(cd broadcaster && \
+            ./main.js -i $INSTALLATION -e $pod \
+            -p $broadcaster_port \
+            -o $sound $lighting 127.0.0.1:$monitor_port)" C-m
+
+    # split window
+    tmux split-window -h -t ${SESSION_NAME}
+
+    # start bridge manager
+    tmux send-keys -t $SESSION_NAME \
+        "(cd ./headset_bridge/bridge_manager && \
+        ./main.js \
+        -p $monitor_port \
+        -a http://127.0.0.1:$broadcaster_port \
+        -d $device)" C-m
+}
+
+
+
+tmux new-session -s ${SESSION_NAME} -d
+
+# This will have to move into a loop
+# For each pod we will have to have a unique value for each value below
+pod="pod1"
+device="/dev/tty.MindWaveMobile-DevA"
+broadcaster_port=3000
+monitor_port=7772
+lighting="127.0.0.1:7770"
+sound="127.0.0.1:7771"
+start_pod "$pod" "$device" "$broadcaster_port" "$monitor_port" "$lighting" "$sound"
+
+
+# once everything is complete, attach to the tmux session to see what is happening
+tmux attach -t $SESSION_NAME
+
