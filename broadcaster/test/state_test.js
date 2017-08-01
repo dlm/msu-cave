@@ -128,13 +128,17 @@ suite('state', function() {
     });
 
     suite('#toOscEeg', function() {
-      const s = makeAndFillState();
-      assert.deepEqual([now, 2, 3, 4, 5, 6, 7, 9, 11], s.toOscEeg());
+      test('it creates correct osc messages', function() {
+        const s = makeAndFillState();
+        assert.deepEqual([nowSeconds, 2, 3, 4, 5, 6, 7, 9, 11], s.toOscEeg());
+      });
     });
 
     suite('#toOscOnOff', function() {
-      const s = makeAndFillState();
-      assert.deepEqual([1], s.toOscOnOff());
+      test('it makes correct osc message', function() {
+        const s = makeAndFillState();
+        assert.deepEqual([1], s.toOscOnOff());
+      });
     });
   });
 });
