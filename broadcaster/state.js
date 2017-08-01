@@ -64,7 +64,7 @@ class State {
 
   toOscEeg() {
     return [
-      this.timestamp,
+      Math.floor(this.timestamp/1000),
       this.delta,
       this.hiAlpha,
       this.hiBeta,
