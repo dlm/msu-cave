@@ -76,9 +76,9 @@ firebaseBroadcaster.subscribe(onRemoteData);
 
 // setup the server so that everything it receives some new data it is
 // published to the remote data server.
-const onOffThreashold = .5
-const onOffWindowSize = 3
 const model = new appState.OnOffModel(onOffThreashold, onOffWindowSize);
+const onOffThreashold = .5;
+const onOffWindowSize = 3;
 const state = new appState.State(model);
 const onLocalData = (body) => {
   state.addData(body)
