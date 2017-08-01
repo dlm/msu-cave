@@ -55,10 +55,10 @@ class State {
     this.midGamma = data.midGamma;
     this.signal = data.signal;
     this.theta = data.theta;
-    this.timestamp = data.timestamp;
+    this.timestamp = data.timestamp*1000;
     this.onOffModel.addSample({
       sample: data.signal,
-      timestamp: data.timestamp,
+      timestamp: this.timestamp,
     });
   }
 

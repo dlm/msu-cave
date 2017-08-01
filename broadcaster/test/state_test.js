@@ -75,7 +75,7 @@ suite('state', function() {
   });
 
   suite('State', function() {
-    const now = Date.now();
+    const nowSeconds = Math.floor(Date.now()/1000);
     const data = {
       attention: 1,
       delta: 2,
@@ -88,7 +88,7 @@ suite('state', function() {
       midGamma: 9,
       signal: 10,
       theta: 11,
-      timestamp: now,
+      timestamp: nowSeconds,
     };
 
     const makeState = () => {
@@ -122,7 +122,7 @@ suite('state', function() {
         assert.equal(9, s.midGamma);
         assert.equal(10, s.signal);
         assert.equal(11, s.theta);
-        assert.equal(now, s.timestamp);
+        assert.equal(nowSeconds*1000, s.timestamp);
         assert.deepEqual([10], s.onOffModel.samples);
       });
     });
