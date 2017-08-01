@@ -97,7 +97,8 @@ class Signal {
 
   addSample(time, value, headsetOn) {
     if (this.lastSample() && time < this.lastSample().time) {
-      throw "Time must move forward";
+      console.warn("Time must move forward");
+      return;
     }
 
     const sample = new Sample(time, value);
