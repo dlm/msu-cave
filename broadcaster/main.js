@@ -65,7 +65,12 @@ const signalBank = new similarity.SignalBank(argv.eegHeadsetId, bankWindowSize);
 const onRemoteData = (snapshot) => {
   signalBank.addSamples(snapshot.val());
   const sim = signalBank.similarity();
-  oscBroadcaster.publishSimilarity(sim + 0.0000001);
+
+  // Note that the small delta values is a hack to get around a "feature" of
+  // the osc library that sends integers.  After digging through the library,
+  // we found that it reports integers if the floor of the value is the value.
+  const hackedSim = Math.floor(sim) === sim ? sim + .0000001 : sim;
+  oscBroadcaster.publishSimilarity(hackedSim);
 };
 firebaseBroadcaster.subscribe(onRemoteData);
 
