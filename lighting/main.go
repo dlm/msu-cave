@@ -36,7 +36,7 @@ func handleRuntimeFlags() {
 	settings = ParseConfig(*configFlag)
 	debug = *debugFlag
 	headsetLock.Lock()
-	headsetOn = true
+	headsetOn = false
 	headsetLock.Unlock()
 }
 

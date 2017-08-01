@@ -1,4 +1,95 @@
 #!/usr/bin/env bash
 
-./headset_bridge/start &
-forego start
+SESSION_NAME=the_cave
+INSTALLATION="holter"
+
+function start_pod() {
+    pod=$1
+    device=$2
+    broadcaster_port=$3
+    monitor_port=$4
+    lighting_config=$5
+    sound_ip=$6
+
+    # extract port from config
+    lighting_port=$(cat "$lighting_config" | jq -r ".ListenPort")
+
+    # create a new window for this pod
+    tmux new-window -n $pod -t $SESSION_NAME
+
+    # start broadcaster
+    tmux send-keys -t $SESSION_NAME \
+        "(cd broadcaster && \
+            ./main.js -i $INSTALLATION -e $pod \
+            -p $broadcaster_port \
+            -o $sound_ip 127.0.0.1:$lighting_port 127.0.0.1:$monitor_port)" C-m
+
+    # split window
+    tmux split-window -h -t ${SESSION_NAME}
+
+    # start bridge manager
+    tmux send-keys -t $SESSION_NAME \
+        "(cd ./headset_bridge/bridge_manager && \
+        ./main.js \
+        -p $monitor_port \
+        -a http://127.0.0.1:$broadcaster_port \
+        -d $device)" C-m
+
+    # split window
+    tmux split-window -v -t ${SESSION_NAME}
+
+    # start bridge manager
+    tmux send-keys -t $SESSION_NAME \
+        "(./lighting/lighting -f ${lighting_config} -d)" C-m
+}
+
+function min() {
+    echo $(( $1 < $2 ? $1 : $2 ))
+}
+
+function min3() {
+    echo $(min $(min $1 $2) $3)
+}
+
+sounds=( \
+    "10.0.0.10:7770" \
+    "10.0.0.20:7770" \
+    "10.0.0.30:7770" \
+    "10.0.0.40:7770" \
+    "10.0.0.50:7770" \
+)
+
+lightings=( \
+    "lighting/settings/settings.pod1.json" \
+    "lighting/settings/settings.pod2.json" \
+    "lighting/settings/settings.pod3.json" \
+    "lighting/settings/settings.pod4.json" \
+    "lighting/settings/settings.pod5.json" \
+)
+
+devices=( \
+    $(ls /dev/tty.MindWaveMobile-*) \
+)
+
+# get the min length of all arrays
+num_pods=$(min3 ${#lightings[@]} ${#sounds[@]} ${#devices[@]})
+
+# create a new session that will contain all processes of the cave
+tmux new-session -s ${SESSION_NAME} -d
+
+# This will have to move into a loop
+# For each pod we will have to have a unique value for each value below
+broadcaster_port_base=3000
+monitor_port_base=7790
+
+for i in $(seq 0 $(( $num_pods - 1 )) ); do
+    start_pod "pod$(( $i + 1 ))" \
+        "${devices[$i]}" \
+        "$(( $broadcaster_port_base + $i ))" \
+        "$(( $monitor_port_base + $i ))" \
+        "${lightings[$i]}" \
+        "${sounds[$i]}"
+done
+
+# once everything is complete, attach to the tmux session to see what is happening
+tmux attach -t $SESSION_NAME

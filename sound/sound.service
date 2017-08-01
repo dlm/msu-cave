@@ -1,9 +1,9 @@
 [Unit]
-Description=Lighting Service
+Description=CSound Service
 After=multi-user.target
 
 [Service]
-ExecStart=/usr/bin/lighting -f "/etc/lighting/settings.json"
+ExecStart=/usr/bin/csound -odac -+rtaudio=alsa -b2048 -B2048 /etc/cave/sound/active
 StandardOutput=journal+console
 Nice=-15
 IOSchedulingClass=best-effort

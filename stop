@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
-./broadcaster/stop
-./headset_bridge/stop
+killall headset_bridge
+killall node
+
+tmux kill-session -t the_cave

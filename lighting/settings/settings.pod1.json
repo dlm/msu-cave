@@ -1,0 +1,22 @@
+{
+  "ListenIP": "127.0.0.1",
+  "ControlIP":"10.0.0.11",
+  "ListenPort":7781,
+  "ControlPort":6454,
+
+  "StartColor":{"Red":255,"Green":60,"Blue":0,"White":70,"Intensity":255},
+  "EndColor":{"Red":0,"Green":255,"Blue":255,"White":70,"Intensity":255},
+  "OffStartColor":{"Red":0,"Green":0,"Blue":0,"White":255,"Intensity":40},
+  "OffEndColor":{"Red":0,"Green":0,"Blue":0,"White":255,"Intensity":75},
+  "MinIntensity":127,
+  "MaxIntensity":255,
+
+  "PulseLength":10,
+  "PulsePause":4,
+  "PulseAmount":0.75,
+
+  "FPS":10,
+  "DefaultOn":false,
+  "HeadsetChannel":6,
+  "Scaler":17500000
+}

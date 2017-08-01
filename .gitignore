@@ -5,11 +5,12 @@
 # get check into version control accidentally.
 credentials
 
+# don't check in the packages for go code
+*/pkg/*
+
 headset_bridge/headset_bridge*
-headset_bridge/pkg/*
 headset_bridge/src/*
 headset_bridge/tmp/*
-osc_src/pkg/*
 osc_src/src/*
 osc_src/osc_src*
 lighting/lighting.arm
