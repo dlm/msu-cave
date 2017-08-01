@@ -92,3 +92,12 @@ const onLocalData = (body) => {
 }
 const webServer = new server.Server(argv.port, onLocalData);
 webServer.start();
+
+// Periodically, send the state's heartbeat
+const heartbeatSeconds = 5;
+const heartbeat = () => {
+  console.log("Heartbeat");
+  firebaseBroadcaster.publish(state);
+  oscBroadcaster.publishOnOff(state);
+};
+setInterval(heartbeat, heartbeatSeconds*1000);
