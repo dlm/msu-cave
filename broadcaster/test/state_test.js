@@ -82,7 +82,7 @@ suite('state', function() {
         assert.equal(10, s.signal);
         assert.equal(11, s.theta);
         assert.equal(12, s.timestamp);
-        assert.deepEqual([2], s.onOffModel.samples);
+        assert.deepEqual([10], s.onOffModel.samples);
       });
     });
 
