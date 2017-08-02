@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# required if starting this script via MAC gui (double-clicked scripts 
+# start in HOME in OS X rather than PWD by default.
+cd -- "$(dirname "$0")"
+
 SESSION_NAME=the_cave
 INSTALLATION="holter"
 
@@ -52,17 +56,11 @@ function min3() {
 }
 
 sounds=( \
-    "10.0.0.10:7770" \
-    "10.0.0.20:7770" \
-    "10.0.0.30:7770" \
     "10.0.0.40:7770" \
     "10.0.0.50:7770" \
 )
 
 lightings=( \
-    "lighting/settings/settings.pod1.json" \
-    "lighting/settings/settings.pod2.json" \
-    "lighting/settings/settings.pod3.json" \
     "lighting/settings/settings.pod4.json" \
     "lighting/settings/settings.pod5.json" \
 )

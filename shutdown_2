@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# required if starting this script via MAC gui (double-clicked scripts 
+# start in HOME in OS X rather than PWD by default.
+cd -- "$(dirname "$0")"
+
 hosts=(\
 	"10.0.0.40" \
 	"10.0.0.50" \
