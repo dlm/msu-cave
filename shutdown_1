@@ -16,3 +16,5 @@ do
 	echo "Shutting down $i"
 	ssh -o ConnectTimeout=5 -tt -t pi@$i "sudo halt -p"
 done
+
+echo raspberry | sudo -S halt
