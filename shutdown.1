@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
-ssh -tt -t cave@10.0.0.10 "sudo halt -p"
-ssh -tt -t cave@10.0.0.20 "sudo halt -p"
-ssh -tt -t cave@10.0.0.30 "sudo halt -p"
+hosts=(\
+	"10.0.0.10" \
+	"10.0.0.20" \
+	"10.0.0.30" \
+)
+
+for i in "${hosts[@]}"
+do
+	echo "Shutting down $i"
+	ssh -o ConnectTimeout=5 -tt -t pi@$i "sudo halt -p"
+done
