@@ -65,15 +65,25 @@ const signalBank = new similarity.SignalBank(argv.eegHeadsetId, bankWindowSize);
 const onRemoteData = (snapshot) => {
   signalBank.addSamples(snapshot.val());
   const sim = signalBank.similarity();
-  oscBroadcaster.publishSimilarity(sim + 0.0000001);
+
+  // Note that the small delta values is a hack to get around a "feature" of
+  // the osc library that sends integers.  After digging through the library,
+  // we found that it reports integers if the floor of the value is the value.
+  const hackedSim = Math.floor(sim) === sim ? sim + .0000001 : sim;
+  oscBroadcaster.publishSimilarity(hackedSim);
 };
 firebaseBroadcaster.subscribe(onRemoteData);
 
 // setup the server so that everything it receives some new data it is
 // published to the remote data server.
-const onOffThreashold = .5
-const onOffWindowSize = 3
-const model = new appState.OnOffModel(onOffThreashold, onOffWindowSize);
+const onOffThreashold = .5;
+const onOffWindowSize = 3;
+const onOffExpirationSeconds = 30;
+const model = new appState.OnOffModel({
+  threashold: onOffThreashold,
+  windowSize: onOffWindowSize,
+  expiration: onOffExpirationSeconds*1000,
+});
 const state = new appState.State(model);
 const onLocalData = (body) => {
   state.addData(body)
@@ -82,3 +92,12 @@ const onLocalData = (body) => {
 }
 const webServer = new server.Server(argv.port, onLocalData);
 webServer.start();
+
+// Periodically, send the state's heartbeat
+const heartbeatSeconds = 5;
+const heartbeat = () => {
+  console.log("Heartbeat");
+  firebaseBroadcaster.publish(state);
+  oscBroadcaster.publishOnOff(state);
+};
+setInterval(heartbeat, heartbeatSeconds*1000);

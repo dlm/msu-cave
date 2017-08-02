@@ -62,11 +62,16 @@ class OSCBroadcaster {
   }
 
   publishHeadset(state) {
-    // Send an eeg OSC message
+    this.publishEEG(state);
+    this.publishOnOff(state);
+  }
+
+  publishEEG(state) {
     const eegData = state.toOscEeg()
     this.publishToAll("/eeg", eegData);
+  }
 
-    // Send an on/off OSC message
+  publishOnOff(state) {
     const onOffData = state.toOscOnOff()
     this.publishToAll("/onoff", onOffData);
   }

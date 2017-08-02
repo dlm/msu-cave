@@ -201,8 +201,9 @@ suite('similarity', function () {
   suite('SignalBank', function() {
     const makeRawData = (val, headsetOn, timeDelta=0) => {
       return {
+        headsetOn,
         raw_data: {
-          delta: val, headsetOn, timestamp: Date.now()+timeDelta,
+          delta: val, timestamp: Date.now()+timeDelta,
         },
       };
     };
@@ -258,17 +259,19 @@ suite('similarity', function () {
     });
 
     suite('#getActiveRemoteSignals', function() {
-      const bank = new similarity.SignalBank('local', 1);
+      test('it gets the active signals', function() {
+        const bank = new similarity.SignalBank('local', 1);
 
-      bank.addSamples({
-        local: makeRawData(10, true),
-        remote: makeRawData(11, true),
+        bank.addSamples({
+          local: makeRawData(10, true),
+          remote: makeRawData(11, true),
+        });
+        const remoteSignal = bank.getSignal('remote');
+        bank.getSignal('remoteInactive');
+
+        assert.deepEqual([remoteSignal], bank.getActiveRemoteSignals());
       });
-      const remoteSignal = bank.getSignal('remote');
-      bank.getSignal('remoteInactive');
-
-      assert.deepEqual([remoteSignal], bank.getActiveRemoteSignals());
-    })
+    });
 
     suite('#similarity', function() {
       test('it returns 0 when local is inactive', function() {

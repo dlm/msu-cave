@@ -4,20 +4,24 @@
 const MAX_SAMPLE = 255;
 
 class OnOffModel {
-  constructor(threashold, windowSize) {
+  constructor({threashold, windowSize, expiration}) {
     this.threashold = threashold;
     this.samples = new Array(windowSize).fill(MAX_SAMPLE);
+    this.expiration = expiration;
+    this.lastUpdate = 0;
   }
 
-  addSample(sample) {
+  addSample({sample, timestamp}) {
     this.samples.push(sample);
     this.samples.shift();
+    this.lastUpdate = Math.max(this.lastUpdate, timestamp);
   }
 
   isOn() {
+    const deltaT = Date.now() - this.lastUpdate;
     const agg = this.samples.reduce((agg, si) => agg + si / MAX_SAMPLE, 0)
     const average = agg / this.samples.length;
-    return  average < this.threashold;
+    return deltaT < this.expiration && average < this.threashold;
   }
 }
 
@@ -51,13 +55,16 @@ class State {
     this.midGamma = data.midGamma;
     this.signal = data.signal;
     this.theta = data.theta;
-    this.timestamp = data.timestamp;
-    this.onOffModel.addSample(data.signal)
+    this.timestamp = data.timestamp*1000;
+    this.onOffModel.addSample({
+      sample: data.signal,
+      timestamp: this.timestamp,
+    });
   }
 
   toOscEeg() {
     return [
-      this.timestamp,
+      Math.floor(this.timestamp/1000),
       this.delta,
       this.hiAlpha,
       this.hiBeta,
