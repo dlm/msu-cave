@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# required if starting this script via MAC gui (double-clicked scripts 
+# required if starting this script via MAC gui (double-clicked scripts
 # start in HOME in OS X rather than PWD by default.
 cd -- "$(dirname "$0")"
 
+./stop
 hosts=(\
 	"10.0.0.40" \
 	"10.0.0.50" \
@@ -12,7 +13,7 @@ hosts=(\
 for i in "${hosts[@]}"
 do
 	echo "Shutting down $i"
-	ssh -o ConnectTimeout=5 -tt -t pi@$i "sudo halt -p"
+	ssh -tt -t pi@$i "echo raspberry | sudo -S halt -p"
 done
 
-echo raspberry | sudo -S halt
+#echo raspberry | sudo -S halt

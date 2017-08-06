@@ -14,7 +14,7 @@ hosts=(\
 for i in "${hosts[@]}"
 do
 	echo "Shutting down $i"
-	ssh -o ConnectTimeout=5 -tt -t pi@$i "sudo halt -p"
+	ssh -tt -t pi@$i "echo raspberry | sudo -S halt -p"
 done
 
-echo raspberry | sudo -S halt
+#echo raspberry | sudo -S halt
