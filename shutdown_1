@@ -17,4 +17,4 @@ do
 	ssh -tt -t pi@$i "echo raspberry | sudo -S halt -p"
 done
 
-#echo raspberry | sudo -S halt
+#echo raspberry | sudo -S shutdown -h now
