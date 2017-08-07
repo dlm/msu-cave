@@ -6,15 +6,15 @@ cd -- "$(dirname "$0")"
 
 ./stop
 hosts=(\
-	"10.0.0.10" \
-	"10.0.0.20" \
-	"10.0.0.30" \
+        "10.0.0.10" \
+        "10.0.0.20" \
+        "10.0.0.30" \
 )
 
 for i in "${hosts[@]}"
 do
-	echo "Shutting down $i"
-	ssh -tt -t pi@$i "echo raspberry | sudo -S halt -p"
+        echo "Shutting down $i"
+        ssh -tt -t pi@$i "echo raspberry | sudo -S halt -p"
 done
 
 echo raspberry | sudo -S shutdown -h now
