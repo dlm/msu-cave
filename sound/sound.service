@@ -1,6 +1,6 @@
 [Unit]
 Description=CSound Service
-After=multi-user.target
+After=multi-user.target alsa-restore.service
 
 [Service]
 ExecStart=/usr/bin/csound -odac -+rtaudio=alsa -b2048 -B2048 /etc/cave/sound/active
