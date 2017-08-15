@@ -1,3 +1,5 @@
+;was sound2o-pod1.csd
+
 <CsoundSynthesizer>
 <CsOptions>
 -odac   
@@ -7,23 +9,21 @@
 <CsInstruments>
 sr        =        44100   
 kr        =        44100
-nchnls    =        2
+nchnls    =        1
 0dbfs    =         1.0
 
-;i-rate globals
 gihandle OSCinit 7770
 
 gibasefreq init 0 ; p4 from i-statement
 giscale init 0    ; p5
 gifn init 0       ; p6
-
-;i-rate globals
 gisimthresh init 0 ; p7
+gimodfreq init 0
 
 ;k-rate globals
 gksim init 0   ; from OSC input
 gktrigger init 0    
-gimodfreq init 0
+
 
 
 ;-----------------------------------------
@@ -44,10 +44,7 @@ instr 1 ;start
 	gipulse_shape = p14
 	gilowpulse = p15
 	gihighpulse = p16
-	gisimthresh = p17; p17
-
- 
-
+	gisimthresh = p17
 	
 	gkf1 init 0  ; from OSC input	
 	gkf2 init 0  ; from OSC input
@@ -65,11 +62,6 @@ instr 1 ;start
 	
 if (kk == 0) goto no_new_data
 no_new_data:
-
-;print here and see  no kf1, kf2, etc. have been set/received	
-	;printks "/eeg is %i %i %i %i %i\\n", 0, /eeg
-	printks "OSC data is %i %i %i %i %i %i %i %i\\n", 2, gkf1, gkf2, gkf3, gkf4, gkf5, gkf6, gkf7, gkf8
-	printks "kf1 and kf2 are %i %i\\n", 2,   gkf1, gkf2
 
   ;; FIGURE OUT IF THE MODE HAS CHANGED
 		if (konoff == 0) then 
@@ -111,17 +103,16 @@ instr 222 ;
  	asig6 oscili (port(gkf6, .0001) / 18000000) * giscale, gibasefreq * 6, gifn
  	asig7 oscili (port(gkf7, .0001) / 18000000) * giscale, gibasefreq * 7, gifn
  	asig8 oscili (port(gkf8, .0001) / 18000000) * giscale, gibasefreq * 8, gifn
- 	
+ 
 	asig = asig0 + asig1 + asig2 + asig3 + asig4 + asig5 + asig6 + asig7 + asig8
  
- 	acomp oscili .8, 400, 1
+ 	acomp oscili .5, 400, 1
  	abal balance asig, acomp
 
 	afiltsig3 butlp abal, 3000
 	afiltsig2 butlp afiltsig3, 3000 	
 	afiltsig butlp afiltsig2, 3000
 		
-
 	adelay1 delay afiltsig, gidelbase
 	adelay2 delay afiltsig, gidelbase * .2
 	adelay3 delay afiltsig, gidelbase * .3	
@@ -133,12 +124,10 @@ instr 222 ;
 
 	adelays = adelay1 + adelay2 + adelay3 + adelay4 + adelay5 + adelay6 + adelay7 + adelay8 
 
-
-
  	abal2 balance adelays, acomp
 	asig2 = abal2
 
- asig2 *= linsegr(0, .33, 0, 1, 1, 3, 0)
+ asig2 *= linsegr(0, .33, 0, 2, 1, 3, 0)
  outc(asig2) 
 
 endin
@@ -149,10 +138,8 @@ instr 333 ;similarity
 	kpulse_freq scale gksim, p11, p10
  	
 	kpulse_env oscili p8, kpulse_freq, p9
-	amod oscili p6, p5, p7
-	amod2 = amod 
-
-	acar oscili gisimscale * kpulse_env,  gibasefreq + amod2, p4
+	amod oscili p6 * kpulse_env, p5, p7
+	acar oscili gisimscale * kpulse_env,  gibasefreq + amod, p4
 		
 	asig = acar * linsegr(0, 1,    1,   2,    0)
  outc(asig)
@@ -164,10 +151,12 @@ endin
 f1 0 512 10 1
 f5 0 1025 7  0.01    150 .5    100 1    230 1  100 .4  445 0.01 ;exponential shark fin
 
-;           freq      amp simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
-;           4         5     6     7    8     9       10      11      12    13          14        15        16       17
-i1 0 3000     146.83 .05   2.7    1    .8     1      73.41     25     1     1           5        .7          1      .8
-i1 0.153 3000 73.42  .05   2.7    1    .68    1      36.71     25     1     1           5        .7          1      .8
+
+;             freq    amp simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
+;             4        5     6     7    8     9       10      11      12    13          14        15        16       17
+
+i1 0     30600  146.83 .04   .75    1    .8     1   73.41     20     1      1           5        .7          1      .8
+i1 0.153 30600  73.42  .04   .75     1   .68    1   36.71     20     1      1           5        .7          1      .8
 
 
 

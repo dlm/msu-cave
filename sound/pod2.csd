@@ -1,30 +1,29 @@
+;was sound2o-pod2.csd
+
 <CsoundSynthesizer>
 <CsOptions>
 -odac   
 
-;testing to see if individual envs on delays are necessary with longer (1.5") attack on output of sonification
 
 </CsOptions>
 <CsInstruments>
 sr        =        44100   
 kr        =        44100
-nchnls    =        2
+nchnls    =        1
 0dbfs    =         1.0
 
-;i-rate globals
 gihandle OSCinit 7770
 
 gibasefreq init 0 ; p4 from i-statement
 giscale init 0    ; p5
 gifn init 0       ; p6
-
-;i-rate globals
 gisimthresh init 0 ; p7
+gimodfreq init 0
 
 ;k-rate globals
 gksim init 0   ; from OSC input
 gktrigger init 0    
-gimodfreq init 0
+
 
 
 ;-----------------------------------------
@@ -110,7 +109,7 @@ instr 222 ;
  	
 	asig = asig0 + asig1 + asig2 + asig3 + asig4 + asig5 + asig6 + asig7 + asig8
  
- 	acomp oscili .8, 400, 1
+ 	acomp oscili .5, 400, 1
  	abal balance asig, acomp
 
 	afiltsig3 butlp abal, 3000
@@ -130,11 +129,10 @@ instr 222 ;
 	adelays = adelay1 + adelay2 + adelay3 + adelay4 + adelay5 + adelay6 + adelay7 + adelay8 
 
 
-
  	abal2 balance adelays, acomp
 	asig2 = abal2
 
- asig2 *= linsegr(0, .33, 0, 1, 1, 3, 0)
+ asig2 *= linsegr(0, .33, 0, 2, 1, 3, 0)
  outc(asig2) 
 
 endin
@@ -145,10 +143,8 @@ instr 333 ;similarity
 	kpulse_freq scale gksim, p11, p10
  	
 	kpulse_env oscili p8, kpulse_freq, p9
-	amod oscili p6, p5, p7
-	amod2 = amod 
-
-	acar oscili gisimscale * kpulse_env,  gibasefreq + amod2, p4
+	amod oscili p6 *kpulse_env, p5, p7
+	acar oscili gisimscale * kpulse_env,  gibasefreq + amod, p4
 		
 	asig = acar * linsegr(0, 1,    1,   2,    0)
  outc(asig)
@@ -160,10 +156,12 @@ endin
 f1 0 512 10 1
 f5 0 1025 7  0.01    150 .5    100 1    230 1  100 .4  445 0.01 ;exponential shark fin
 
-;           freq      amp simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
-;           4         5     6     7    8     9       10      11      12    13          14        15        16       17
-i1 0     3000 220 .15 2.9   1     .8    1   110    25     1     1                   5          .7         1      .8
-i1 0.153 3000 110    .15 2.9   1    .68    1   55    25     1     1                 5          .7         1      .8
+;             freq  amp    simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
+;              4     5      6     7    8      9       10      11      12    13          14        15        16       17
+i1 0     30600 220   .035    .7    1    .21    1      110      20      1     1           5          .7         1      .8
+i1 0.153 30600 110   .035    .7    1    .58    1       55      20      1     1           5          .7         1      .8
+;             freq    amp simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
+;             4        5     6     7    8     9       10      11      12    13          14        15        16       17
 
 </CsScore>
 </CsoundSynthesizer>
