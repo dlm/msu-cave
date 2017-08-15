@@ -1,8 +1,9 @@
+;was sound2o-pod5.csd
+
 <CsoundSynthesizer>
 <CsOptions>
 -odac   
 
-;testing to see if individual envs on delays are necessary with longer (1.5") attack on output of sonification
 
 </CsOptions>
 <CsInstruments>
@@ -11,20 +12,19 @@ kr        =        44100
 nchnls    =        2
 0dbfs    =         1.0
 
-;i-rate globals
-gihandle OSCinit 7770
 
+gihandle OSCinit 7770
 gibasefreq init 0 ; p4 from i-statement
 giscale init 0    ; p5
 gifn init 0       ; p6
-
-;i-rate globals
 gisimthresh init 0 ; p7
+gimodfreq init 0
 
 ;k-rate globals
 gksim init 0   ; from OSC input
 gktrigger init 0    
-gimodfreq init 0
+
+
 
 
 ;-----------------------------------------
@@ -46,8 +46,6 @@ instr 1 ;start
 	gilowpulse = p15
 	gihighpulse = p16
 	gisimthresh = p17; p17
-
- 
 
 	
 	gkf1 init 0  ; from OSC input	
@@ -98,7 +96,7 @@ endin
 
 ;---------------------------------------------
 instr 222 ; 
-	asig0 oscili .05, gibasefreq, gifn
+	asig0 oscili .04, gibasefreq, gifn
  	asig1 oscili (port(gkf1, .0001) / 18000000) * giscale, gibasefreq, gifn
  	asig2 oscili (port(gkf2, .0001) / 18000000) * giscale, gibasefreq * 2, gifn 	
  	asig3 oscili (port(gkf3, .0001) / 18000000) * giscale, gibasefreq * 3, gifn
@@ -109,14 +107,12 @@ instr 222 ;
  	asig8 oscili (port(gkf8, .0001) / 18000000) * giscale, gibasefreq * 8, gifn
  	
 	asig = asig0 + asig1 + asig2 + asig3 + asig4 + asig5 + asig6 + asig7 + asig8
- 
- 	acomp oscili .8, 400, 1
- 	abal balance asig, acomp
 
-	afiltsig3 butlp abal, 3000
-	afiltsig2 butlp afiltsig3, 3000 	
-	afiltsig butlp afiltsig2, 3000
-		
+	afiltsig5 butlp asig, 6000
+	afiltsig4 butlp afiltsig5, 6000 
+	afiltsig3 butlp afiltsig4, 6000
+	afiltsig2 butlp afiltsig3, 6000 	
+	afiltsig butlp afiltsig2, 6000
 
 	adelay1 delay afiltsig, gidelbase
 	adelay2 delay afiltsig, gidelbase * .2
@@ -131,10 +127,13 @@ instr 222 ;
 
 
 
- 	abal2 balance adelays, acomp
-	asig2 = abal2
+; 	abal2 balance adelays, acomp
+;	asig2 = abal2
+	asig2 eqfil adelays, 2217, 22, .2
+	
 
- asig2 *= linsegr(0, .33, 0, 1, 1, 3, 0)
+
+ asig2 *= linsegr(0, .33, 0, 2, 1, 3, 0)
  outc(asig2) 
 
 endin
@@ -145,10 +144,8 @@ instr 333 ;similarity
 	kpulse_freq scale gksim, p11, p10
  	
 	kpulse_env oscili p8, kpulse_freq, p9
-	amod oscili p6, p5, p7
-	amod2 = amod 
-
-	acar oscili gisimscale * kpulse_env,  gibasefreq + amod2, p4
+	amod oscili p6 * kpulse_env, p5, p7
+	acar oscili gisimscale * kpulse_env,  gibasefreq + amod, p4
 		
 	asig = acar * linsegr(0, 1,    1,   2,    0)
  outc(asig)
@@ -163,8 +160,8 @@ f5 0 1025 7  0.01    150 .5    100 1    230 1  100 .4  445 0.01 ;exponential sha
 
 ;           freq      amp simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
 ;           4         5     6     7    8     9       10      11      12    13          14        15        16       17
-i1 0     3000 739.99 .15 2.9   1     .8    1   369.99    25     1     1           5       .7         1      .8
-i1 0.153 3000 369.99   .15 2.9   1    .68    1  184.99   25     1     1           5       .7         1      .8
+i1 0     30600 739.99 .015 .65   1     .8    1   369.99      20     1     1           5       .7         1      .8
+i1 0.153 30600 369.99 .015 .65   1    .68    1  184.99       20     1     1           5       .7         1      .8
 
 </CsScore>
 </CsoundSynthesizer>
