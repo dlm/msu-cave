@@ -9,7 +9,7 @@
 <CsInstruments>
 sr        =        44100   
 kr        =        44100
-nchnls    =        1
+nchnls    =        2
 0dbfs    =         1.0
 
 gihandle OSCinit 7770
@@ -81,11 +81,11 @@ no_new_data:
 
      ;; turn on process based on similarity value
   if(gktrigger == 333) then      ;   p4        p5         p6        p7        p8                p9             p10        p11
-      event "i", gktrigger, 0, 30600, gicarfn, gimodfreq, gimodamp, gimod_ifn, gipulse_env_amp, gipulse_shape, gilowpulse, gihighpulse
+      event "i", gktrigger, 0, 50400, gicarfn, gimodfreq, gimodamp, gimod_ifn, gipulse_env_amp, gipulse_shape, gilowpulse, gihighpulse
           
     ;sonification      
   elseif(gktrigger == 222) then
-	  event "i", gktrigger, 0, 30600
+	  event "i", gktrigger, 0, 50400
     endif
     kmode = gktrigger
   endif
@@ -94,7 +94,7 @@ endin
 
 ;---------------------------------------------
 instr 222 ; 
-	asig0 oscili .05, gibasefreq, gifn
+	asig0 oscili .02, gibasefreq, gifn
  	asig1 oscili (port(gkf1, .0001) / 18000000) * giscale, gibasefreq, gifn
  	asig2 oscili (port(gkf2, .0001) / 18000000) * giscale, gibasefreq * 2, gifn 	
  	asig3 oscili (port(gkf3, .0001) / 18000000) * giscale, gibasefreq * 3, gifn
@@ -106,26 +106,17 @@ instr 222 ;
  
 	asig = asig0 + asig1 + asig2 + asig3 + asig4 + asig5 + asig6 + asig7 + asig8
  
- 	acomp oscili .5, 400, 1
- 	abal balance asig, acomp
-
-	afiltsig3 butlp abal, 3000
-	afiltsig2 butlp afiltsig3, 3000 	
-	afiltsig butlp afiltsig2, 3000
-		
-	adelay1 delay afiltsig, gidelbase
-	adelay2 delay afiltsig, gidelbase * .2
-	adelay3 delay afiltsig, gidelbase * .3	
-	adelay4 delay afiltsig, gidelbase * .4	
-	adelay5 delay afiltsig, gidelbase * .5		
-	adelay6 delay afiltsig, gidelbase * .6			
-	adelay7 delay afiltsig, gidelbase * .7	
-	adelay8 delay afiltsig, gidelbase * .8	
+	adelay1 delay asig, gidelbase
+	adelay2 delay asig, gidelbase * .2
+	adelay3 delay asig, gidelbase * .3	
+	adelay4 delay asig, gidelbase * .4	
+	adelay5 delay asig, gidelbase * .5		
+	adelay6 delay asig, gidelbase * .6			
+	adelay7 delay asig, gidelbase * .7	
+	adelay8 delay asig, gidelbase * .8	
 
 	adelays = adelay1 + adelay2 + adelay3 + adelay4 + adelay5 + adelay6 + adelay7 + adelay8 
-
- 	abal2 balance adelays, acomp
-	asig2 = abal2
+	asig2 = adelays
 
  asig2 *= linsegr(0, .33, 0, 2, 1, 3, 0)
  outc(asig2) 
@@ -155,8 +146,9 @@ f5 0 1025 7  0.01    150 .5    100 1    230 1  100 .4  445 0.01 ;exponential sha
 ;             freq    amp simamp ifn idel   carifn  modfreq modamp modifn pulseNVamp pulseshape minpulse pulsehigh simthr
 ;             4        5     6     7    8     9       10      11      12    13          14        15        16       17
 
-i1 0     30600  146.83 .04   .75    1    .8     1   73.41     20     1      1           5        .7          1      .8
-i1 0.153 30600  73.42  .04   .75     1   .68    1   36.71     20     1      1           5        .7          1      .8
+;amps .021 and .023 , sim .64
+i1 0     50400  146.83 .012   .50    1    .8     1   73.41     20     1      1           5        .7          1      .8
+i1 0.153 50400  73.42  .012   .50     1   .68    1   36.71     20     1      1           5        .7          1      .8
 
 
 
