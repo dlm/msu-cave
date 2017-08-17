@@ -81,7 +81,7 @@ broadcaster_port_base=3000
 monitor_port_base=7790
 
 for i in $(seq 0 $(( $num_pods - 1 )) ); do
-    start_pod "pod$(( $i + 1 ))" \
+    start_pod "pod$(( $i + 4 ))" \
         "${devices[$i]}" \
         "$(( $broadcaster_port_base + $i ))" \
         "$(( $monitor_port_base + $i ))" \
