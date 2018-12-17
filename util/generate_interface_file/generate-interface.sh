@@ -22,7 +22,7 @@ write_file() {
 	echo "	netmask 255.255.255.0" >> interfaces
 	echo "	network 10.0.0.0" >> interfaces
 	echo "	broadcast 10.0.0.255" >> interfaces
-	echo "	gateway 10.1.1.1" >> interfaces
+	echo "	gateway 10.0.0.1" >> interfaces
 }
 
 echo "Fetching data..."
