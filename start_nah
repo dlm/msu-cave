@@ -5,7 +5,7 @@
 cd -- "$(dirname "$0")"
 
 SESSION_NAME=the_cave
-INSTALLATION="Norm Asbjornson"
+INSTALLATION="Norm"
 
 function start_pod() {
     pod=$1
@@ -24,7 +24,7 @@ function start_pod() {
     # start broadcaster
     tmux send-keys -t $SESSION_NAME \
         "(cd broadcaster && \
-            ./main.js -i $INSTALLATION -e $pod \
+            ./main.js --use-rethink -i $INSTALLATION -e $pod \
             -p $broadcaster_port \
             -o $sound_ip 127.0.0.1:$lighting_port 127.0.0.1:$monitor_port)" C-m
 
