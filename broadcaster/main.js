@@ -22,6 +22,14 @@ var argv = yargs
   .default('f', 'https://msu-cave.firebaseio.com')
   .alias('f', 'firebase_url')
   .describe('f', 'Url of the firebase server')
+  // use rethink
+  .default('r', false)
+  .alias('r', 'use-rethink')
+  .describe('r', 'If true, use rethink as backend')
+  // rethink db name
+  .default('d', 'msu_cave')
+  .alias('d', 'rethink-db-name')
+  .describe('d', 'The name of the rethinkDB')
   // port
   .default('p', 3000)
   .alias('p', 'port')
@@ -52,10 +60,20 @@ const oscBroadcaster = new broadcaster.OSCBroadcaster(clients);
 // create and initialize the broadcaster object.  The broadcaster handles
 // much of the heavy lifting for communicating updates on the node to
 // the firebase serer
-const db = new broadcaster.firebaseDB(argv.credentials, argv.firebase_url);
-const firebaseBroadcaster = new broadcaster.FirebaseBroadcaster(
-  db, argv.installationId, argv.eegHeadsetId
-);
+let dbBroadcaster;
+if (argv.useRethink) {
+  console.log('Initializing for RethinkDB');
+  const db = new broadcaster.rethinkDB(argv.rethinkDbName, argv.installationId);
+  dbBroadcaster = new broadcaster.RethinkBroadcaster(
+    db, argv.eegHeadsetId
+  );
+} else {
+  console.log('Initializing for Firebase');
+  const db = new broadcaster.firebaseDB(argv.credentials, argv.firebase_url);
+  dbBroadcaster = new broadcaster.FirebaseBroadcaster(
+    db, argv.installationId, argv.eegHeadsetId
+  );
+}
 
 // initialize so that every time remote data is updated the onRemoteData
 // method is called.  This should hook into the covariance calculator either
@@ -63,7 +81,7 @@ const firebaseBroadcaster = new broadcaster.FirebaseBroadcaster(
 const bankWindowSize = 5;
 const signalBank = new similarity.SignalBank(argv.eegHeadsetId, bankWindowSize);
 const onRemoteData = (snapshot) => {
-  signalBank.addSamples(snapshot.val());
+  signalBank.addSamples(snapshot);
   const sim = signalBank.similarity();
 
   // Note that the small delta values is a hack to get around a "feature" of
@@ -72,7 +90,7 @@ const onRemoteData = (snapshot) => {
   const hackedSim = Math.floor(sim) === sim ? sim + .0000001 : sim;
   oscBroadcaster.publishSimilarity(hackedSim);
 };
-firebaseBroadcaster.subscribe(onRemoteData);
+dbBroadcaster.subscribe(onRemoteData);
 
 // setup the server so that everything it receives some new data it is
 // published to the remote data server.
@@ -87,7 +105,7 @@ const model = new appState.OnOffModel({
 const state = new appState.State(model);
 const onLocalData = (body) => {
   state.addData(body)
-  firebaseBroadcaster.publish(state);
+  dbBroadcaster.publish(state);
   oscBroadcaster.publishHeadset(state);
 }
 const webServer = new server.Server(argv.port, onLocalData);
@@ -97,7 +115,7 @@ webServer.start();
 const heartbeatSeconds = 5;
 const heartbeat = () => {
   console.log("Heartbeat");
-  firebaseBroadcaster.publish(state);
+  dbBroadcaster.publish(state);
   oscBroadcaster.publishOnOff(state);
 };
 setInterval(heartbeat, heartbeatSeconds*1000);

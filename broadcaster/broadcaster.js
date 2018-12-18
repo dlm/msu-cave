@@ -2,6 +2,7 @@
 'use strict';
 
 var firebase = require('firebase');
+var rethink = require('rethinkdbdash')();
 var osc = require('node-osc');
 
 function firebaseDB(credentials, url) {
@@ -34,7 +35,7 @@ class FirebaseBroadcaster {
   }
 
   subscribe(callback) {
-    this._ref.on('value', callback);
+    this._ref.on('value', (snapshot) => { callback(snapshot.val()) });
   }
 
   get installationPath() {
@@ -43,6 +44,55 @@ class FirebaseBroadcaster {
 
   get latestPath() {
     return this.installationPath + '/latest';
+  }
+}
+
+
+function rethinkDB(db_name, table_name) {
+  const db = rethink.db(db_name);
+  let connection = null;
+  rethink.dbList().run().then((dbs) => {
+    return (dbs.includes(db_name)) ? "" : rethink.dbCreate(db_name).run();
+  }).then(() => {
+    return db.tableList().run();
+  }).then((tables) => {
+    return tables.includes(table_name) ? "" : db.tableCreate(table_name).run();
+  });
+  return db.table(table_name);
+}
+
+
+class RethinkBroadcaster {
+  constructor(table, headsetID) {
+    this.table = table;
+    this.headsetID = headsetID;
+  }
+
+  publish(data) {
+    let payload = {};
+    payload = {
+      raw_data: data,
+      headsetOn: data.onOffModel.isOn(),
+      timestamp: {
+        node: (new Date()).getTime()
+      }
+    };
+    this.table
+      .get(this.headsetID)
+      .replace({"id": this.headsetID, "data": payload})
+      .run();
+  }
+
+  subscribe(callback) {
+    this.table.changes().run().then((feed) => {
+      feed.each((err, change) => {
+        this.table.run().then((results) => {
+          let snapshot = {};
+          results.forEach((result) => { snapshot[result.id] = result.data; });
+          callback(snapshot);
+        });
+      });
+    });
   }
 }
 
@@ -83,5 +133,7 @@ class OSCBroadcaster {
 
 module.exports.firebaseDB = firebaseDB;
 module.exports.FirebaseBroadcaster = FirebaseBroadcaster;
+module.exports.rethinkDB = rethinkDB;
+module.exports.RethinkBroadcaster = RethinkBroadcaster;
 module.exports.oscClient = oscClient;
 module.exports.OSCBroadcaster = OSCBroadcaster;
